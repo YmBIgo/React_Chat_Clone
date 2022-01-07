@@ -796,13 +796,16 @@ def sendMessage(request, id):
 			file_path = "chatrooms/" + str(chatroom[0].id) + "/" + str(uuid.uuid4()).replace("-", "")[:10] + "_" + image.name
 			file_name = fs.save(file_path, image)
 			uploaded_file_url = "http://localhost:8000" + fs.url(file_name)
-			message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], image=uploaded_file_url)
+			image_message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], image=uploaded_file_url)
 			# 
 			content = request.POST.get("content")
 			if content != None and content != "":
 				message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
+			message_json = {"id": image_message.id, "image": str(image_message.image),
+							"created_at": str(image_message.created_at), "user_id": str(message.user.id)}
 			response = {"status": "success",
-						"message": "ok"}
+						"message": "ok",
+						"messages": message_json}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		else:
@@ -836,8 +839,11 @@ def sendMessage(request, id):
 				result = json.dumps(response, ensure_ascii=False)
 				return HttpResponse(result)
 			message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
+			message_json = {"id": message.id, "content": message.content,
+							"created_at": str(message.created_at), "user_id": str(message.user.id)}
 			response = {"status": "success",
-						"message": "ok"}
+						"message": "ok",
+						"messages": message_json}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 	elif request.method == "GET":
@@ -863,14 +869,16 @@ def sendMessage(request, id):
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		# 1
-		offset = request.GET.get("offset")
+		offset = int(request.GET.get("offset"))
 		if offset == None:
 			offset = 0
 		offset_start = offset * 10; offset_end = (offset+1) * 10
 		messages = Message.objects.filter(chat_room=chatroom[0]).order_by('-created_at').all()[offset_start:offset_end]
 		messages_json = []
 		for message in messages:
-			message_json = {"id": message.id, "content": message.content, "image": str(message.image)}
+			message_json = {"id": message.id, "content": message.content,
+							"image": str(message.image), "user_id": str(message.user.id),
+							"created_at": str(message.created_at)}
 			messages_json.append(message_json)
 		response = {"status": "success",
 					"message": "ok",

@@ -1,17 +1,22 @@
 import {combineReducers} from "redux"
 
 import {userSession} from "./user_session"
-import {chats} from "./chats"
-import {chatroomType} from "../actions/chat"
+import {chatrooms} from "./chatrooms"
+import {messages} from "./messages"
+
+import {messageType} from "../actions/message"
+import {chatroomType} from "../actions/chatroom"
 
 export type rootState = {
 	sessions: number;
-	chats: chatroomType[];
+	chatrooms: chatroomType[];
+	messages: messageType[];
 }
 
 const reducer = combineReducers({
 	sessions: userSession,
-	chats: chats,
+	chatrooms: chatrooms,
+	messages: messages
 })
 
 export default reducer;

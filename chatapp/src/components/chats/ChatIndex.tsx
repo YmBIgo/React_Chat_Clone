@@ -3,9 +3,8 @@ import axios from "axios"
 import {useDispatch, useSelector} from "react-redux"
 import {Link} from "react-router-dom"
 
-import {getChatroom} from "../../state/actions/chat"
+import {getChatroom, chatroomType} from "../../state/actions/chatroom"
 import {rootState} from "../../state/reducers"
-import {chatroomType} from "../../state/actions/chat"
 import {userType} from "../../state/actions/user"
 import {BASE_API_URL} from "../../config/url"
 import "../../CSS/chat.css"
@@ -16,7 +15,7 @@ const ChatIndex: React.FC<Props> = () => {
 
 	const dispatch = useDispatch()
 	const current_user: number = useSelector((state: rootState) => state.sessions)
-	const chats: chatroomType[] = useSelector((state: rootState) => state.chats)
+	const chats: chatroomType[] = useSelector((state: rootState) => state.chatrooms)
 
 	const [fixedChats, setFixedChats] = useState<chatroomType[]>([])
 	const useeffect_counter = 0
@@ -97,14 +96,14 @@ const ChatIndex: React.FC<Props> = () => {
 				</div>
 				<div className="col-10">
 					<div className="chat-index-chat-inner">
-						<h2>トーク</h2>
+						<h2>チャット一覧</h2>
 						<hr />
 						<div>
 							{chats.map((chat, index) => {
 								{chat.is_group === false && getSingleUserImage(chat, index)}
 								{getLastMessageData(chat, index)}
 								return chat.is_group === false ?
-									<Link to={"/chats/"+chat.id}>
+									<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
 										<div className="row">
 											<div className="col-3">
 												<img src="" className="chat-index-chat-img" />
@@ -120,7 +119,7 @@ const ChatIndex: React.FC<Props> = () => {
 										<hr />
 									</Link>
 								:
-									<Link to={"/chats/"+chat.id}>
+									<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
 										<div className="row">
 											<div className="col-3">
 												<img src={chat.image} className="chat-index-chat-img" />

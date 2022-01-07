@@ -25,7 +25,7 @@ const App: React.FC<Props> = () => {
       <div className="App">
         <Routes>
           <Route path="/" element={<ChatIndex/>} />
-          <Route path="/chats/:id" element={<ChatDetail/>} />
+          <Route path="/chats/:chatId" element={<ChatDetail/>} />
           <Route path="/users/sign_in" element={<SignIn/>} />
           <Route path="/users/sign_up" element={<SignUp/>} />
         </Routes>
