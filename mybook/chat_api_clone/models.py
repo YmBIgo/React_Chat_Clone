@@ -23,7 +23,7 @@ class User(models.Model):
 	last_name = models.CharField(max_length=20, default="")
 	description = models.CharField(max_length=1024, default="")
 	email = models.EmailField(max_length=128, unique=True)
-	image = models.ImageField(upload_to=upload_user_path)
+	image = models.ImageField(upload_to=upload_user_path,default="http://localhost:8000/media/images/logo/chat_default.png")
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	cookie = models.CharField(max_length=256, default="")
@@ -33,7 +33,7 @@ class User(models.Model):
 
 class ChatRoom(models.Model):
 	name = models.CharField(max_length=30, default="New Chat")
-	image = models.ImageField(upload_to=upload_chat_path)
+	image = models.ImageField(upload_to=upload_chat_path,default="http://localhost:8000/media/images/logo/chat_default.png")
 	is_group = models.BooleanField(default=False)
 	user_ids = models.CharField(max_length=1024, default="")
 	created_at = models.DateTimeField(auto_now_add=True)

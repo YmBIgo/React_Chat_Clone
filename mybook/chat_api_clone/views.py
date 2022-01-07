@@ -93,8 +93,10 @@ def userSignIn(request):
 			if (len(user) > 0):
 				cookie_text = str(uuid.uuid4()).replace("-", "")
 				user.update(cookie=cookie_text)
+				user_json = {"id": user[0].id, "name": user[0].name, "email": user[0].email}
 				response = {"status": "success",
-							"message": "ok"}
+							"message": "ok",
+							"user": user_json}
 				result = json.dumps(response, ensure_ascii=False)
 				http_response = HttpResponse(result)
 				set_cookie(http_response, "chat_user_cookie", cookie_text, 365*24*60*60)
@@ -105,7 +107,8 @@ def userSignIn(request):
 							"message": "user authorization fail"}
 				result = json.dumps(response, ensure_ascii=False)
 				return HttpResponse(result)
-		except:
+		except Exception as e:
+			print(e)
 			response = {"status": "error",
 						"message": "some thing went wrong."}
 			result = json.dumps(response, ensure_ascii=False)
@@ -179,6 +182,25 @@ def uploadImageUser(request):
 	else:
 		response = {"status": "fail",
 					"message": "not providing POST request or Image."}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+
+def currentUser(request):
+	current_user = checkUserSignedIn(request)
+	if (current_user == False):
+		response = {"status": "fail",
+					"message": "user authorization fail"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	else:
+		user = current_user[0]
+		current_user_json = {"id": user.id, "name": user.name,
+							 "first_name": user.first_name, "last_name": user.last_name,
+							 "description": user.description, "image": str(user.image),
+							 "created_at": str(user.created_at)}
+		response = {"status": "success",
+					"message": "ok",
+					"user": current_user_json}
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 
@@ -329,7 +351,8 @@ def createGroupChatroom(request):
 			ChatRoomUserRelation.objects.create(user=user, chat_room=chatroom, is_group=True)
 		response = {"status": "success",
 					"message": "ok",
-					"chatroom": {"id": chatroom.id, "name": chatroom.name, "is_group": chatroom.is_group}
+					"chatroom": {"id": chatroom.id, "name": chatroom.name,
+								 "is_group": chatroom.is_group, "image": str(chatroom.image)}
 					}
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
@@ -374,7 +397,9 @@ def showChatroom(request, id):
 				chatroom_filtered.update(name=chat_name)
 				response = {"status": "success",
 							"message": "ok",
-							"chatroom":{"id": chatroom.id, "name": chat_name, "is_group": chatroom.is_group}}
+							"chatroom":{"id": chatroom.id, "name": chat_name,
+										"is_group": chatroom.is_group, "image": str(chatroom.image)}
+							}
 				result = json.dumps(response, ensure_ascii=False)
 				return HttpResponse(result)
 			else:
@@ -398,7 +423,8 @@ def showChatroom(request, id):
 
 		try:
 			chatroom = ChatRoom.objects.get(pk=id)
-			response = {"id": chatroom.id, "name": chatroom.name, "is_group": chatroom.is_group}
+			response = {"id": chatroom.id, "name": chatroom.name,
+						"is_group": chatroom.is_group, "image": str(chatroom.image)}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		except:
@@ -485,7 +511,8 @@ def showCurrentUsersChatroom(request):
 			chatroom = chatroom_relation.chat_room
 			chatroom_data = {"id": chatroom.id,
 							 "name": chatroom.name, 
-							 "is_group": chatroom.is_group}
+							 "is_group": chatroom.is_group,
+							 "image": str(chatroom.image)}
 			chatrooms_array.append(chatroom_data)
 		response = {"status": "success",
 					"message": "ok",
@@ -533,6 +560,55 @@ def showChatroomUsers(request, id):
 			response = {"status": "fail",
 						"message": "chatroom not exist"}
 			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+	else:
+		response = {"status": "fail",
+					"message": "not providing GET request."}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+
+def showSingleChatroomUser(request, id):
+	# [Input]	id
+	# [Output]	1 : success
+	# 				> display chatrooms user
+	# 			2 : fail (chatroom_id 404)
+	# 			3 : fail (User not signed in)
+
+	# Check 3
+	current_user = checkUserSignedIn(request)
+	if (current_user == False):
+		response = {"status": "fail",
+					"message": "user authorization fail"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	if request.method == "GET":
+		# Check 2
+		chatroom = ChatRoom.objects.filter(pk=id, is_group=False)
+		if len(chatroom) == 0:
+			response = {"status": "fail",
+						"message": "chatroom not found"}
+			result = json.dumps(response)
+			return HttpResponse(result)
+		chatroom_user_relation = ChatRoomUserRelation.objects.filter(chat_room=chatroom[0])
+		chat_user = {}
+		chat_user_ids = []
+		for chat_user in chatroom_user_relation:
+			chat_user_ids.append(chat_user.user.id)
+			if chat_user.user.id != current_user[0].id:
+				chat_user = {"id":chat_user.user.id, "name": chat_user.user.name,
+							 "first_name": chat_user.user.first_name, "last_name": chat_user.user.last_name,
+							 "image": str(chat_user.user.image), "description": chat_user.user.description,
+							 "created_at": str(chat_user.user.created_at)}
+		print(chat_user_ids, current_user[0].id)
+		if current_user[0].id in chat_user_ids:
+			response = {"status": "success", "message": "ok",
+						"user": chat_user}
+			result = json.dumps(response)
+			return HttpResponse(result)
+		else:
+			response = {"status": "fail",
+						"message": "current user not exist in chat"}
+			result = json.dumps(response)
 			return HttpResponse(result)
 	else:
 		response = {"status": "fail",
@@ -770,8 +846,7 @@ def sendMessage(request, id):
 		# 				> generate TextMessage
 		# 			2 : fail (user_id should participate)
 		# 			3 : fail (chatroom_id 404)
-		# 			4 : fail (CSRF check)
-		# 			5 : fail (User not signed in)
+		# 			4 : fail (User not signed in)
 		
 		# Check 3
 		chatroom = ChatRoom.objects.filter(pk=id)
@@ -795,7 +870,7 @@ def sendMessage(request, id):
 		messages = Message.objects.filter(chat_room=chatroom[0]).order_by('-created_at').all()[offset_start:offset_end]
 		messages_json = []
 		for message in messages:
-			message_json = {"id": message.id, "content": message.content, "image": message.image}
+			message_json = {"id": message.id, "content": message.content, "image": str(message.image)}
 			messages_json.append(message_json)
 		response = {"status": "success",
 					"message": "ok",
@@ -808,12 +883,64 @@ def sendMessage(request, id):
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 
+def lastMessage(request, id):
+	# [Input]	chat_id
+	# [Output]	1 : success
+	# 				> generate TextMessage
+	# 			2 : fail (user_id should participate)
+	# 			3 : fail (chatroom_id 404)
+	# 			4 : fail (User not signed in)
+
+	# Check 4
+	current_user = checkUserSignedIn(request)
+	if (current_user == False):
+		response = {"status": "fail",
+					"message": "user authorization fail"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	if request.method == "GET":
+		# Check 3
+		chatroom = ChatRoom.objects.filter(pk=id)
+		if len(chatroom) == 0:
+			response = {"status": "fail",
+						"message": "chatroom not exist"}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		# Check 2
+		is_user_exist_in_chatroom = ChatRoomUserRelation.objects.filter(user=current_user[0],chat_room=chatroom[0])
+		if len(is_user_exist_in_chatroom) == 0:
+			response = {"status": "fail",
+						"message": "user is not exist in this chat"}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		# 1
+		try:
+			message = Message.objects.filter(chat_room=chatroom[0]).order_by('-created_at').all()[0]
+			message_json = {"id": message.id, "content": message.content,
+							"image": str(message.image), "created_at": str(message.created_at)}
+			response = {"status": "success",
+						"message": "ok",
+						"messages": message_json}
+			result = json.dumps(response)
+			return HttpResponse(result)
+		except:
+			response = {"status": "fail",
+						"message": "message not exist"}
+			result = json.dumps(response)
+			return HttpResponse(result)
+	else:
+		response = {"status": "fail",
+					"message": "not providing GET request"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+
 # 6 : 共有
 
 def checkCsrfToken(csrf_token):
 	csrfs = CsrfToken.objects.filter(content=csrf_token)
+	# print(csrf_token)
 	if (len(csrfs) > 0):
-		# CsrfToken 削除の実装も
+		csrfs.delete()
 		return True
 	else:
 		return False
