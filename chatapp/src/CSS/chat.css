@@ -68,6 +68,11 @@
 	margin: 5px;
 	max-width: 200px;
 }
+.chat-detail-message-others-img{
+	width: 200px;
+	height: 200px;
+	margin: 5px;
+}
 .chat-detail-user-img{
 	width: 30px;
 	height: 30px;

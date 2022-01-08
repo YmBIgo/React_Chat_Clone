@@ -1,8 +1,9 @@
-import React, {useEffect, useRef} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {useDispatch, useSelector} from "react-redux"
 import {useParams, useNavigate, Link} from "react-router-dom"
 import axios from "axios"
 
+import ChatDetailMessage from "./ChatDetailMessage"
 import {getCurrentUser} from "../../state/actions"
 import {getMessages, addMessage, concatMessage, messageType} from "../../state/actions/message"
 import {messageReducerType} from "../../state/reducers/messages"
@@ -21,6 +22,7 @@ const ChatDetail: React.FC<Props> = () => {
 	const params = useParams<"chatId">();
 	const navigate = useNavigate()
 
+	const [fixedMessage, setFixedMessage] = useState<messageType[]>([])
 	// 
 	const last_section_pos = useRef(0)
 	const next_section_pos = useRef(0)
@@ -29,9 +31,9 @@ const ChatDetail: React.FC<Props> = () => {
 
 	useEffect(() => {
 		dispatch(getCurrentUser())
-		// if (current_user === 0) {
-		// 	navigate("/users/sign_in")
-		// }
+		if (current_user === 0) {
+			navigate("/users/sign_in")
+		}
 	}, [current_user])
 
 	useEffect(() => {
@@ -39,11 +41,11 @@ const ChatDetail: React.FC<Props> = () => {
 			navigate("/")
 		}
 		dispatch(getMessages(Number(params.chatId)))
-		getMessageHeight()
 	}, [messages_status])
 
 	useEffect(() => {
 		getChatData(Number(params.chatId))
+		setTimeout(getMessageHeight, 100)
 	}, [params])
 
 	const getChatData = (chat_id: number) => {
@@ -76,25 +78,6 @@ const ChatDetail: React.FC<Props> = () => {
 		})
 	}
 
-	const getUserData_ = async (user_id: number) => {
-		try {
-			let response = await axios({
-				url: BASE_API_URL + "/users/" + user_id.toString(),
-				method: "GET"
-			})
-			let user = response["data"]
-			return user
-		} catch(error) {
-			console.log(error)
-		}
-	}
-
-	const getUserData = async (user_id: number, index: number) => {
-		let user = await getUserData_(user_id)
-		let image_html = document.getElementsByClassName("chat-detail-user-img")[index] as HTMLImageElement
-		image_html.setAttribute("src", user.image)
-	}
-
 	const sendMessage = () => {
 		let text_input_html = document.getElementsByClassName("chat-detail-text-input")[0] as HTMLInputElement
 		let image_input_html = document.getElementsByClassName("chat-detail-image-input")[0] as HTMLInputElement
@@ -115,6 +98,7 @@ const ChatDetail: React.FC<Props> = () => {
 
 	const onClickConcatMessage = () => {
 		dispatch(concatMessage(Number(params.chatId), offset.current))
+		offset.current = offset.current + 1
 	}
 
 	const onScrollgetMessageHeight = (e: any) => {
@@ -131,6 +115,7 @@ const ChatDetail: React.FC<Props> = () => {
 			offset.current = offset.current + 1
 			is_scrolled.current = true
 			e.target.addEventListener("scroll", onScrollgetMessageHeight)
+			// 
 			// e.target.scrollTo(0, 500)
 		}
 	}
@@ -140,15 +125,9 @@ const ChatDetail: React.FC<Props> = () => {
 		let last_section = document.getElementsByClassName("message-last-section")[0] as HTMLDivElement
 		let next_section_position = next_section.getBoundingClientRect()
 		let last_section_position = last_section.getBoundingClientRect()
-		// console.log(next_section_position.top)
-		// console.log(last_section_position.top)
-		last_section_pos.current = last_section_position.top
-		next_section_pos.current = next_section_position.top
-		console.log(last_section_pos.current)
-		console.log(next_section_pos.current)
-		let scroll_sction = document.getElementsByClassName("chat-detail-messages-area")[0] as HTMLDivElement
-		scroll_sction.scrollTo(0, last_section_pos.current)
-		scroll_sction.addEventListener("scroll", onScrollgetMessageHeight)
+		let scroll_section = document.getElementsByClassName("chat-detail-messages-area")[0] as HTMLDivElement
+		scroll_section.scrollTo(0, last_section_position.top)
+		scroll_section.addEventListener("scroll", onScrollgetMessageHeight)
 	}
 
 	return(
@@ -173,49 +152,10 @@ const ChatDetail: React.FC<Props> = () => {
 					表示できるメッセージはありません。
 				</div>
 				{messages.map((message, index) => {
-					{getUserData(message.user_id, index)}
-					return message.user_id == current_user ?	
-						message.image == "" ?
-							<div className="row chat-detail-message-content">
-								<div className="col-11">
-									<div className="chat-detail-message-myself">
-										{message.content}
-									</div>
-								</div>
-								<div className="col-1">
-									<img className="chat-detail-user-img myself-img" />
-								</div>
-							</div>
-						:
-							<div className="row chat-detail-message-content">
-								<div className="col-11">
-									<img src={message.image} className="chat-detail-message-myself-img"/>
-								</div>
-								<div className="col-1">
-									<img className="chat-detail-user-img myself-img" />
-								</div>
-							</div>
-					:
-						message.image == "" ?
-							<div className="row">
-								<div className="col-1">
-									<img className="chat-detail-user-img" />
-								</div>
-								<div className="col-11">
-									<div className="chat-detail-message-others">
-										{message.content}
-									</div>
-								</div>
-							</div>
-						:
-							<div className="row">
-								<div className="col-1">
-									<img className="chat-detail-user-img" />
-								</div>
-								<div className="col-11">
-									<img src={message.image} className="chat-detail-message-others-img" />
-								</div>
-							</div>
+					{ /*getUserData(message.user_id, index)*/ }
+					return(
+						<ChatDetailMessage message={message} current_user={current_user} />
+					)
 				})}
 				<div className="message-last-section">
 				</div>

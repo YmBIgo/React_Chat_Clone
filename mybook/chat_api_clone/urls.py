@@ -11,6 +11,7 @@ urlpatterns = [
 	path('current_user', views.currentUser, name="show_current_user"),
 	# Users 関係
 	path('users/<int:id>', views.showUser, name="user_show"),
+	path('users/<int:id>/is_chat', views.isChatUser, name="user_is_chat_user"),
 	# ChatRoom 関係
 	path('chatrooms/new', views.createChatroom, name="chatroom_new"),
 	path('group_chatrooms/new', views.createGroupChatroom, name="group_chatroom_new"),

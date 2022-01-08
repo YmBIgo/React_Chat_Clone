@@ -235,6 +235,69 @@ def showUser(request, id):
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 
+def isChatUser(request, id):
+	# /users/:id/is_chat
+	# 
+	# [Input]	user_id
+	# [Output]	1 : success
+	# 				> check whether chatuserrelation exist
+	# 			2 : fail (user_id 404)
+	# 			3 : fail (User not signed in)
+	# 
+
+	# Check 3
+	current_user = checkUserSignedIn(request)
+	if (current_user == False):
+		response = {"status": "fail",
+					"message": "user authorization fail"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	if request.method == "GET":
+		if current_user[0].id == id:
+			response = {"status": "fail",
+						"message": "cannot select current user"}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		user = User.objects.filter(pk=id)
+		if len(user) == 0:
+			response = {"status": "fail",
+						"message": "user not found"}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		user_relation = ChatRoomUserRelation.objects.filter(user=user[0], is_group=False)
+		is_user_exist_flag = False
+		is_chat_chatrrom = []
+		for user_r in user_relation:
+			chatroom = user_r.chat_room
+			chatroom_users = json.loads(chatroom.user_ids)
+			if current_user[0].id in chatroom_users:
+				is_user_exist_flag = True
+				is_chat_chatrrom = chatroom
+		print(is_chat_chatrrom)
+		if is_user_exist_flag == True:
+			response = {"status": "success",
+						"message": "user already start chat",
+						"isChat": True,
+						"chatroom": {"id": is_chat_chatrrom.id,
+									 "name": is_chat_chatrrom.name,
+									 "image": str(is_chat_chatrrom.image),
+									 "is_group": is_chat_chatrrom.is_group
+									}
+						}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		else:
+			response = {"status": "success",	
+						"message": "user not start chat",
+						"isChat": False}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+	else:
+		response = {"status": "fail",
+					"message": "not providing GET request."}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+
 # 3 : ChatRoom 関係
 
 def createChatroom(request):
@@ -279,7 +342,8 @@ def createChatroom(request):
 			chatroom = is_chatroom_exist[0]
 			response = {"status": "success",
 						"message": "chat room already exists",
-						"chatroom": {"id":chatroom.id, "name":chatroom.name, "is_group": chatroom.is_group}}
+						"chatroom": {"id":chatroom.id, "name":chatroom.name,
+									 "image": chatroom.image, "is_group": chatroom.is_group}}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		try:
@@ -291,7 +355,8 @@ def createChatroom(request):
 			ChatRoomUserRelation.objects.create(chat_room=chatroom, user=other_user, is_group=False)
 			response = {"status": "success",
 						"message": "ok",
-						"chatroom": {"id": chatroom.id, "name": chatroom.name, "is_group": chatroom.is_group}}
+						"chatroom": {"id": chatroom.id, "name": chatroom.name,
+									 "image": chatoom.image, "is_group": chatroom.is_group}}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		except:
@@ -587,7 +652,7 @@ def showSingleChatroomUser(request, id):
 		if len(chatroom) == 0:
 			response = {"status": "fail",
 						"message": "chatroom not found"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		chatroom_user_relation = ChatRoomUserRelation.objects.filter(chat_room=chatroom[0])
 		chat_user = {}
@@ -603,12 +668,12 @@ def showSingleChatroomUser(request, id):
 		if current_user[0].id in chat_user_ids:
 			response = {"status": "success", "message": "ok",
 						"user": chat_user}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		else:
 			response = {"status": "fail",
 						"message": "current user not exist in chat"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 	else:
 		response = {"status": "fail",
@@ -655,14 +720,14 @@ def addUserToGroupChat(request, id):
 		if (chatroom.is_group == False):
 			response = {"status": "fail",
 						"message": "only group chat can add user"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		# Check 2
 		chatroom_relation = ChatRoomUserRelation.objects.filter(chat_room=chatroom, user=current_user[0], is_group=True)
 		if len(chatroom_relation) > 0:
 			response = {"status": "fail",
 						"message": "user already exist in this chat"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		# 1
 		ChatRoomUserRelation.objects.create(chat_room=chatroom, user=current_user[0], is_group=True)
@@ -675,7 +740,7 @@ def addUserToGroupChat(request, id):
 		# response
 		response = {"status": "success",
 					"message": "ok"}
-		result = json.dumps(response)
+		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 	else:
 		response = {"status": "fail",
@@ -720,14 +785,14 @@ def removeUserToGroupChat(request, id):
 		if (chatroom.is_group == False):
 			response = {"status": "fail",
 						"message": "only group chat can add user"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		# Check 2
 		chatroom_relation = ChatRoomUserRelation.objects.filter(chat_room=chatroom, user=current_user[0], is_group=True)
 		if len(chatroom_relation) == 0:
 			response = {"status": "fail",
 						"message": "user is not exist in this chat"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		# 1
 		chatroom_relation.delete()
@@ -740,7 +805,7 @@ def removeUserToGroupChat(request, id):
 		# response
 		response = {"status": "success",
 					"message": "ok"}
-		result = json.dumps(response)
+		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 	else:
 		response = {"status": "fail",
@@ -931,12 +996,12 @@ def lastMessage(request, id):
 			response = {"status": "success",
 						"message": "ok",
 						"messages": message_json}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		except:
 			response = {"status": "fail",
 						"message": "message not exist"}
-			result = json.dumps(response)
+			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 	else:
 		response = {"status": "fail",
