@@ -76,3 +76,6 @@
 	margin-right: 5px;
 	border: .1px solid black;
 }
+.chat-detail-message-not-found{
+	display: none;
+}

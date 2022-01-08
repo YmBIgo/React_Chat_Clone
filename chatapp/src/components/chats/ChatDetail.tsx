@@ -25,6 +25,7 @@ const ChatDetail: React.FC<Props> = () => {
 	const last_section_pos = useRef(0)
 	const next_section_pos = useRef(0)
 	const offset = useRef(1)
+	const is_scrolled = useRef(false)
 
 	useEffect(() => {
 		dispatch(getCurrentUser())
@@ -119,13 +120,18 @@ const ChatDetail: React.FC<Props> = () => {
 	const onScrollgetMessageHeight = (e: any) => {
 		let target_position = e.target
 		let scroll_position = target_position.scrollTop
+		if ( scroll_position > 20 && is_scrolled.current == true ) {
+			is_scrolled.current = false
+		}
 		// let client_position = target_position.clientHeight
 		// let client_bottom = scroll_position + client_position + last_section_pos.current
-		if (scroll_position < 20) {
+		if (scroll_position < 20 && is_scrolled.current == false) {
 			e.target.removeEventListener("scroll", onScrollgetMessageHeight)
 			dispatch(concatMessage(Number(params.chatId), offset.current))
 			offset.current = offset.current + 1
-			// e.target.addEventListener("scroll", onScrollgetMessageHeight)
+			is_scrolled.current = true
+			e.target.addEventListener("scroll", onScrollgetMessageHeight)
+			// e.target.scrollTo(0, 500)
 		}
 	}
 
@@ -163,6 +169,9 @@ const ChatDetail: React.FC<Props> = () => {
 				<div className="message-next-section">
 				</div>
 				<button onClick={() => onClickConcatMessage()}>もっと見る</button>
+				<div className="chat-detail-message-not-found">
+					表示できるメッセージはありません。
+				</div>
 				{messages.map((message, index) => {
 					{getUserData(message.user_id, index)}
 					return message.user_id == current_user ?	

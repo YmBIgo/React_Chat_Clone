@@ -1,0 +1,36 @@
+< React Chat Clone >
+
+○ 準備
+	1. django
+
+		a . mysql
+
+		‘‘‘ mysql
+			create database CHAT_API_CLONE_TEST
+		‘‘‘
+
+		b. ~/.bash_profile
+
+		‘‘‘
+			export DJANGO_CHAT_API_SECRET='YOUR_SECRET_KEY'
+		‘‘‘
+
+		c. django サーバー
+
+		‘‘‘
+			python manage.py runserver
+		‘‘‘
+
+	2. React
+
+		a. React
+
+		‘‘‘
+			npm start
+		‘‘‘
+
+		b. フロントエンド
+
+		‘‘‘
+			http://localhost:3000/
+		‘‘‘
