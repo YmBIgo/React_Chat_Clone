@@ -22,6 +22,8 @@ export type messageActionType = {
 	messages: messageType[];
 }
 
+// Get Message
+
 export const getMessages = (chatroom_id: number) => {
 	return (dispatch: Dispatch) => {
 		axios({
@@ -57,6 +59,8 @@ const getMessageFail = (): messageActionType => {
 		messages: []
 	}
 }
+
+// AddMessage
 
 // image が any になっている
 export const addMessage = (content: string, image: any, chatroom_id: number) => {
@@ -103,6 +107,45 @@ export const addMessageSuccess = (messages: messageType[]): messageActionType =>
 export const addMessageFail = (): messageActionType => {
 	return {
 		type: ADD_MESSAGE_FAIL,
+		messages: []
+	}
+}
+
+// Concat Message
+
+export const concatMessage = (chatroom_id: number, offset: number) => {
+	return (dispatch: Dispatch) => {
+		console.log(offset)
+		axios({
+			url: BASE_API_URL + "/chatrooms/" + chatroom_id.toString() + "/messages?offset=" + offset.toString(),
+			method: "GET",
+			withCredentials: true
+ 		}).then((response) => {
+ 			let response_status = response["data"]["status"]
+ 			if (response_status === "success") {
+ 				let messages = response["data"]["messages"]
+ 				dispatch(concatMessageSuccess(messages))
+ 			} else if (response_status === "fail") {
+ 				dispatch(concatMessageFail())
+ 			} else if (response_status === "error") {
+ 				dispatch(concatMessageFail())
+ 			} else {
+ 				dispatch(concatMessageFail())
+ 			}
+ 		})
+	}
+}
+
+export const concatMessageSuccess = (messages: messageType[]): messageActionType => {
+	return {
+		type: CONCAT_MESSAGE_SUCCESS,
+		messages: messages
+	}
+}
+
+export const concatMessageFail = (): messageActionType => {
+	return {
+		type: CONCAT_MESSAGE_FAIL,
 		messages: []
 	}
 }

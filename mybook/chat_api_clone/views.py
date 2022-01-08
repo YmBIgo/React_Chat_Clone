@@ -592,14 +592,14 @@ def showSingleChatroomUser(request, id):
 		chatroom_user_relation = ChatRoomUserRelation.objects.filter(chat_room=chatroom[0])
 		chat_user = {}
 		chat_user_ids = []
-		for chat_user in chatroom_user_relation:
-			chat_user_ids.append(chat_user.user.id)
-			if chat_user.user.id != current_user[0].id:
-				chat_user = {"id":chat_user.user.id, "name": chat_user.user.name,
-							 "first_name": chat_user.user.first_name, "last_name": chat_user.user.last_name,
-							 "image": str(chat_user.user.image), "description": chat_user.user.description,
-							 "created_at": str(chat_user.user.created_at)}
-		print(chat_user_ids, current_user[0].id)
+		for chat_user_r in chatroom_user_relation:
+			chat_user_ids.append(chat_user_r.user.id)
+			if chat_user_r.user.id != current_user[0].id:
+				chat_user = {"id":chat_user_r.user.id, "name": chat_user_r.user.name,
+							 "first_name": chat_user_r.user.first_name, "last_name": chat_user_r.user.last_name,
+							 "image": str(chat_user_r.user.image), "description": chat_user_r.user.description,
+							 "created_at": str(chat_user_r.user.created_at)}
+		print(chat_user)
 		if current_user[0].id in chat_user_ids:
 			response = {"status": "success", "message": "ok",
 						"user": chat_user}
@@ -802,7 +802,7 @@ def sendMessage(request, id):
 			if content != None and content != "":
 				message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
 			message_json = {"id": image_message.id, "image": str(image_message.image), "content": "",
-							"created_at": str(image_message.created_at), "user_id": str(message.user.id)}
+							"created_at": str(image_message.created_at), "user_id": str(image_message.user.id)}
 			response = {"status": "success",
 						"message": "ok",
 						"messages": message_json}
@@ -869,8 +869,10 @@ def sendMessage(request, id):
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		# 1
-		offset = int(request.GET.get("offset"))
-		if offset == None:
+		offset = 0
+		try: 
+			offset = int(request.GET.get("offset"))
+		except:
 			offset = 0
 		offset_start = offset * 10; offset_end = (offset+1) * 10
 		messages = Message.objects.filter(chat_room=chatroom[0]).order_by('-created_at').all()[offset_start:offset_end]

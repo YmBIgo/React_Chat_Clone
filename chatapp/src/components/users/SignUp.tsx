@@ -11,13 +11,16 @@ type Props = {}
 const SignUp: React.FC<Props> = () => {
 
 	const dispatch = useDispatch()
-	const current_user = useSelector((state: rootState) => state.sessions)
+	const current_user: number | null = useSelector((state: rootState) => state.sessions)
 	const navigate = useNavigate()
 
 	useEffect(() => {
 		dispatch(getCurrentUser())
+		if (current_user != 0 && current_user != null) {
+			navigate("/")
+		}
 		console.log(current_user)
-	}, [])
+	}, [current_user])
 
 	const signup = (): void => {
 		let email_html = document.getElementsByClassName("email-input")[0] as HTMLInputElement

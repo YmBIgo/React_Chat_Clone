@@ -1,8 +1,8 @@
 import React, {useEffect} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 import {useDispatch, useSelector} from "react-redux"
-import {userSignIn} from "../../state/actions"
+import {userSignIn, getCurrentUser} from "../../state/actions"
 import {rootState} from "../../state/reducers"
 import "../../CSS/userAuth.css"
 
@@ -12,8 +12,13 @@ const SignIn: React.FC<Props> = () => {
 
 	const dispatch = useDispatch()
 	const current_user = useSelector((state: rootState) => state.sessions)
+	const navigate = useNavigate()
 
 	useEffect(() => {
+		dispatch(getCurrentUser())
+		if (current_user != 0 && current_user != null) {
+			navigate("/")
+		}
 		console.log(current_user)
 	}, [current_user])
 

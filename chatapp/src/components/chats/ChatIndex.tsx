@@ -15,7 +15,7 @@ type Props = {}
 const ChatIndex: React.FC<Props> = () => {
 
 	const dispatch = useDispatch()
-	const current_user: number = useSelector((state: rootState) => state.sessions)
+	const current_user: number | null = useSelector((state: rootState) => state.sessions)
 	const chats: chatroomType[] = useSelector((state: rootState) => state.chatrooms)
 	const navigation = useNavigate()
 

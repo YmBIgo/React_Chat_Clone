@@ -1,5 +1,6 @@
 import {GET_MESSAGE_SUCCESS, GET_MESSAGE_FAIL,
 		ADD_MESSAGE_SUCCESS, ADD_MESSAGE_FAIL,
+		CONCAT_MESSAGE_SUCCESS, CONCAT_MESSAGE_FAIL,
 		messageType, messageActionType} from "../actions/message"
 
 export type messageReducerType = {
@@ -17,6 +18,10 @@ export const messages = (state: messageReducerType = {"messages": [], "status": 
 		case ADD_MESSAGE_SUCCESS:
 			return {"status": "success", "messages": [...state.messages, ...action.messages] }
 		case ADD_MESSAGE_FAIL:
+			return state
+		case CONCAT_MESSAGE_SUCCESS:
+			return {"status": "success", messages: [...action.messages.reverse(), ...state.messages]}
+		case CONCAT_MESSAGE_FAIL:
 			return state
 		default:
 			return state

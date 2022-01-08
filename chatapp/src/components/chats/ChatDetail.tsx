@@ -1,10 +1,10 @@
-import React, {useEffect} from "react"
+import React, {useEffect, useRef} from "react"
 import {useDispatch, useSelector} from "react-redux"
 import {useParams, useNavigate, Link} from "react-router-dom"
 import axios from "axios"
 
 import {getCurrentUser} from "../../state/actions"
-import {getMessages, addMessage, messageType} from "../../state/actions/message"
+import {getMessages, addMessage, concatMessage, messageType} from "../../state/actions/message"
 import {messageReducerType} from "../../state/reducers/messages"
 import {rootState} from "../../state/reducers"
 import {BASE_API_URL} from "../../config/url"
@@ -14,12 +14,17 @@ type Props = {}
 const ChatDetail: React.FC<Props> = () => {
 
 	const dispatch = useDispatch()
-	const current_user: number = useSelector((state: rootState) => state.sessions)
+	const current_user: number | null = useSelector((state: rootState) => state.sessions)
 	const messages_: messageReducerType = useSelector((state: rootState) => state.messages)
 	const messages: messageType[] = messages_.messages
 	const messages_status: string = messages_.status
 	const params = useParams<"chatId">();
 	const navigate = useNavigate()
+
+	// 
+	const last_section_pos = useRef(0)
+	const next_section_pos = useRef(0)
+	const offset = useRef(1)
 
 	useEffect(() => {
 		dispatch(getCurrentUser())
@@ -33,6 +38,7 @@ const ChatDetail: React.FC<Props> = () => {
 			navigate("/")
 		}
 		dispatch(getMessages(Number(params.chatId)))
+		getMessageHeight()
 	}, [messages_status])
 
 	useEffect(() => {
@@ -106,6 +112,39 @@ const ChatDetail: React.FC<Props> = () => {
 		image_input_html.value = ""
 	}
 
+	const onClickConcatMessage = () => {
+		dispatch(concatMessage(Number(params.chatId), offset.current))
+	}
+
+	const onScrollgetMessageHeight = (e: any) => {
+		let target_position = e.target
+		let scroll_position = target_position.scrollTop
+		// let client_position = target_position.clientHeight
+		// let client_bottom = scroll_position + client_position + last_section_pos.current
+		if (scroll_position < 20) {
+			e.target.removeEventListener("scroll", onScrollgetMessageHeight)
+			dispatch(concatMessage(Number(params.chatId), offset.current))
+			offset.current = offset.current + 1
+			// e.target.addEventListener("scroll", onScrollgetMessageHeight)
+		}
+	}
+
+	const getMessageHeight = (): void => {
+		let next_section = document.getElementsByClassName("message-next-section")[0] as HTMLDivElement
+		let last_section = document.getElementsByClassName("message-last-section")[0] as HTMLDivElement
+		let next_section_position = next_section.getBoundingClientRect()
+		let last_section_position = last_section.getBoundingClientRect()
+		// console.log(next_section_position.top)
+		// console.log(last_section_position.top)
+		last_section_pos.current = last_section_position.top
+		next_section_pos.current = next_section_position.top
+		console.log(last_section_pos.current)
+		console.log(next_section_pos.current)
+		let scroll_sction = document.getElementsByClassName("chat-detail-messages-area")[0] as HTMLDivElement
+		scroll_sction.scrollTo(0, last_section_pos.current)
+		scroll_sction.addEventListener("scroll", onScrollgetMessageHeight)
+	}
+
 	return(
 		<div className="chat-detail-area">
 			<Link to="/">＜　トップに戻る</Link>
@@ -121,6 +160,9 @@ const ChatDetail: React.FC<Props> = () => {
 				</div>
 			</div>
 			<div className="chat-detail-messages-area">
+				<div className="message-next-section">
+				</div>
+				<button onClick={() => onClickConcatMessage()}>もっと見る</button>
 				{messages.map((message, index) => {
 					{getUserData(message.user_id, index)}
 					return message.user_id == current_user ?	
@@ -166,6 +208,8 @@ const ChatDetail: React.FC<Props> = () => {
 								</div>
 							</div>
 				})}
+				<div className="message-last-section">
+				</div>
 			</div>
 			<div className="chat-detail-form-area">
 				<input type="text" name="content" className="form-control chat-detail-text-input" />
