@@ -66,7 +66,7 @@ export const addMessage = (content: string, image: any, chatroom_id: number) => 
 			method: "GET"
 		}).then((response) => {
 			let csrf_token: string = response["data"]["csrf_token"]
-			let params = new URLSearchParams();
+			let params = new FormData();
 			params.append("content", content);
 			params.append("image", image);
 			params.append("csrf_token", csrf_token);

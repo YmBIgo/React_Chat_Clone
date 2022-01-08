@@ -28,9 +28,18 @@
 	background-color: white;
 	padding: 10px;
 }
+.chat-detail-header-img{
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+}
+.chat-detail-header-name{
+	font-size: 24px;
+}
 .chat-detail-messages-area{
-	height: 650px;
+	height: 500px;
 	overflow: scroll;
+	border: 0.1px solid black;
 }
 .chat-detail-message-myself{
 	/*margin-left: 200px;*/
@@ -48,4 +57,22 @@
 	height: 200px;
 	margin: 5px;
 }
-
+.myself-img{
+	float: right;
+}
+.chat-detail-message-others{
+	clear: both;
+	float: left;
+	background-color: #dcdcdc;
+	padding: 5px 20px;
+	margin: 5px;
+	max-width: 200px;
+}
+.chat-detail-user-img{
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	margin-top: 7px;
+	margin-right: 5px;
+	border: .1px solid black;
+}

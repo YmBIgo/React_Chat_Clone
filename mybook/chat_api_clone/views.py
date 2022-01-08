@@ -801,7 +801,7 @@ def sendMessage(request, id):
 			content = request.POST.get("content")
 			if content != None and content != "":
 				message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
-			message_json = {"id": image_message.id, "image": str(image_message.image),
+			message_json = {"id": image_message.id, "image": str(image_message.image), "content": "",
 							"created_at": str(image_message.created_at), "user_id": str(message.user.id)}
 			response = {"status": "success",
 						"message": "ok",
@@ -839,7 +839,7 @@ def sendMessage(request, id):
 				result = json.dumps(response, ensure_ascii=False)
 				return HttpResponse(result)
 			message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
-			message_json = {"id": message.id, "content": message.content,
+			message_json = {"id": message.id, "content": message.content, "image": "",
 							"created_at": str(message.created_at), "user_id": str(message.user.id)}
 			response = {"status": "success",
 						"message": "ok",

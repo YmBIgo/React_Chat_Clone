@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react"
 import axios from "axios"
 import {useDispatch, useSelector} from "react-redux"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 
 import {getChatroom, chatroomType} from "../../state/actions/chatroom"
+import {getCurrentUser} from "../../state/actions"
 import {rootState} from "../../state/reducers"
 import {userType} from "../../state/actions/user"
 import {BASE_API_URL} from "../../config/url"
@@ -16,13 +17,15 @@ const ChatIndex: React.FC<Props> = () => {
 	const dispatch = useDispatch()
 	const current_user: number = useSelector((state: rootState) => state.sessions)
 	const chats: chatroomType[] = useSelector((state: rootState) => state.chatrooms)
+	const navigation = useNavigate()
 
 	const [fixedChats, setFixedChats] = useState<chatroomType[]>([])
 	const useeffect_counter = 0
 
 	useEffect(() => {
-		if (current_user == 0) {
-			// どっかに飛ばす
+		dispatch(getCurrentUser())
+		if (current_user === 0) {
+			navigation("/users/sign_in")
 		}
 	}, [current_user])
 
@@ -82,7 +85,7 @@ const ChatIndex: React.FC<Props> = () => {
 			if (message.content == "") {
 				message_html.innerText = "[画像]"
 			} else {
-				message.html.innerText = message.content
+				message_html.innerText = message.content
 			}
 		}
 	}

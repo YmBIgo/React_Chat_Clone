@@ -1,8 +1,8 @@
-import React from "react";
-import {Link} from "react-router-dom";
+import React, {useEffect} from "react";
+import {Link, useNavigate} from "react-router-dom";
 
 import {useDispatch, useSelector} from "react-redux"
-import {userSignUp} from "../../state/actions"
+import {userSignUp, getCurrentUser} from "../../state/actions"
 import {rootState} from "../../state/reducers"
 import "../../CSS/userAuth.css"
 
@@ -11,6 +11,13 @@ type Props = {}
 const SignUp: React.FC<Props> = () => {
 
 	const dispatch = useDispatch()
+	const current_user = useSelector((state: rootState) => state.sessions)
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		dispatch(getCurrentUser())
+		console.log(current_user)
+	}, [])
 
 	const signup = (): void => {
 		let email_html = document.getElementsByClassName("email-input")[0] as HTMLInputElement
