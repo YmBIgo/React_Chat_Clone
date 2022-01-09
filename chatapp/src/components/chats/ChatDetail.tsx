@@ -85,7 +85,7 @@ const ChatDetail: React.FC<Props> = () => {
 		if (image_input_html.files !== null) {
 			if (image_input_html.files.length != 0){
 				let image_input_file = image_input_html.files[0]
-				dispatch(addMessage(text_input, image_input_html.files[0], Number(params.chatId)))
+				dispatch(addMessage(text_input, image_input_file, Number(params.chatId)))
 			} else {
 				dispatch(addMessage(text_input, "", Number(params.chatId)))
 			}

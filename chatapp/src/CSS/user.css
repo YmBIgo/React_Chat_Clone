@@ -35,3 +35,18 @@
 	height: 670px;
 	background-color: white;
 }
+.current-user-edit-area-inner{
+	padding: 5px;
+}
+.current-user-edit-input {
+	width: 450px !important;
+	margin-left: 10px;
+}
+.current-user-edit-btn{
+	margin-left: 10px;
+	margin-top: 10px;
+}
+.current-user-edit-label{
+	margin-top: 10px;
+	margin-bottom: 5px;
+}

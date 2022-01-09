@@ -3,6 +3,7 @@ import axios from "axios"
 import {Link} from "react-router-dom"
 
 import {BASE_API_URL} from "../../config/url"
+import {userType} from "../../state/actions/user"
 import {messageType} from "../../state/actions/message"
 
 type Props = {
@@ -18,25 +19,16 @@ const ChatDetailMessage: React.FC<Props> = ({message, current_user}) => {
 
 	let image_ref = React.createRef<HTMLImageElement>()
 
-	const getUserData_ = async (user_id: number) => {
-		try {
-			let response = await axios({
-				url: BASE_API_URL + "/users/" + user_id.toString(),
-				method: "GET"
-			})
-			let user = response["data"]
-			return user
-		} catch(error) {
-			console.log(error)
-		}
-	}
-
-	const getUserData = async (user_id: number) => {
-		// let user = await getUserData_(user_id)
-		getUserData_(user_id).then((user) => {
+	const getUserData = (user_id: number) => {
+		axios({
+			url: BASE_API_URL + "/users/" + user_id.toString(),
+			method: "GET"
+		}).then((response) => {
+			let user: userType = response["data"]
 			let image_html = image_ref.current as HTMLImageElement
-			// let image_html = document.getElementsByClassName("chat-detail-user-img")[index] as HTMLImageElement
-			image_html.setAttribute("src", user.image)
+			if (user.image != undefined) {
+				image_html.setAttribute("src", user.image)
+			}
 		})
 	}
 

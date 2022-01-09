@@ -135,11 +135,12 @@ def updateUser(request):
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		user = current_user
+		name = request.POST.get("name")
 		first_name = request.POST.get("first_name")
 		last_name = request.POST.get("last_name")
 		description = request.POST.get("description")
 		# image = request.POST.get("image")
-		user.update(first_name=first_name, last_name=last_name, description=description)
+		user.update(name=name, first_name=first_name, last_name=last_name, description=description)
 		response = {"status": "success",
 					"message": "ok"}
 		result = json.dumps(response, ensure_ascii=False)
