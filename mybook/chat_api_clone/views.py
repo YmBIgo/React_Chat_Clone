@@ -299,6 +299,48 @@ def isChatUser(request, id):
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 
+def currentUserUsers(request):
+	# 
+	# [Input]	current_user
+	# [Output]	1 : success
+	# 				> display user who chats with by single chat
+	# 			2 : fail (User not signed in)
+	# 
+
+	current_user = checkUserSignedIn(request)
+	if (current_user == False):
+		response = {"status": "fail",
+					"message": "user authorization fail"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	if request.method == "GET":
+		chatroom_relations = ChatRoomUserRelation.objects.filter(user=current_user[0], is_group=False)
+		users_array = []
+		for chatroom_r in chatroom_relations:
+			chatroom = chatroom_r.chat_room
+			user_relations = ChatRoomUserRelation.objects.filter(chat_room=chatroom, is_group=False)
+			for user_r in user_relations:
+				user = user_r.user
+				if (user != current_user[0]):
+					users_array.append(user)
+		user_response = []
+		for user in users_array:
+			user_json = {"id": user.id, "name": user.name,
+						 "first_name": user.first_name, "last_name": user.last_name,
+						 "image": str(user.image), "description": user.description,
+						 "created_at": str(user.created_at)}
+			user_response.append(user_json)
+		response = {"status": "success",
+					"message": "ok",
+					"users": user_response}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	else:
+		response = {"status": "fail",
+					"message": "not providing GET request."}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+
 # 3 : ChatRoom 関係
 
 def createChatroom(request):

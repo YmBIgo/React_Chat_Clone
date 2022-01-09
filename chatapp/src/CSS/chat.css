@@ -91,3 +91,29 @@
 .chat-detail-message-not-found{
 	display: none;
 }
+/* Start Group Chat  */
+.start-group-chat-area{
+	width: 470px;
+	height: 670px;
+	background-color: white;
+	padding: 10px;
+}
+.start-group-chat-header-selected-people{
+	text-align: center;
+}
+.start-group-chat-header-input-area{
+	margin: 7px 0;
+}
+.start-group-chat-header-input{
+	width: 85% !important;
+	display: inline-block !important;
+}
+.start-group-chat-header-button{
+	display: inline-block !important;
+	margin-left: 5px;
+}
+.start-group-chat-user-row-image{
+	width: 40px;
+	height: 40px;
+	margin: 0 10px;
+}

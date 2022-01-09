@@ -6,6 +6,7 @@ import SignIn from "./components/users/SignIn"
 import SignUp from "./components/users/SignUp"
 import ChatIndex from "./components/chats/ChatIndex"
 import ChatDetail from "./components/chats/ChatDetail"
+import StartGroupChat from "./components/chats/StartGroupChat"
 import UserShow from "./components/users/UserShow"
 import CurrentUserEdit from "./components/users/CurrentUserEdit"
 
@@ -29,6 +30,7 @@ const App: React.FC<Props> = () => {
         <Routes>
           <Route path="/" element={<ChatIndex/>} />
           <Route path="/chats/:chatId" element={<ChatDetail/>} />
+          <Route path="/start_group_chat" element={<StartGroupChat />} />
           <Route path="/users/sign_in" element={<SignIn/>} />
           <Route path="/users/sign_up" element={<SignUp/>} />
           <Route path="/users/:user_id" element={<UserShow/>} />
