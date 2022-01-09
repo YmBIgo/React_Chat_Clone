@@ -7,6 +7,8 @@ import SignUp from "./components/users/SignUp"
 import ChatIndex from "./components/chats/ChatIndex"
 import ChatDetail from "./components/chats/ChatDetail"
 import UserShow from "./components/users/UserShow"
+import CurrentUserEdit from "./components/users/CurrentUserEdit"
+
 import {getCurrentUser} from "./state/actions"
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -30,6 +32,7 @@ const App: React.FC<Props> = () => {
           <Route path="/users/sign_in" element={<SignIn/>} />
           <Route path="/users/sign_up" element={<SignUp/>} />
           <Route path="/users/:user_id" element={<UserShow/>} />
+          <Route path="/current_user" element={<CurrentUserEdit />} />
         </Routes>
       </div>
     </BrowserRouter>

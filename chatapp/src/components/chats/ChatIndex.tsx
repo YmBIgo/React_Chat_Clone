@@ -10,6 +10,8 @@ import {userType} from "../../state/actions/user"
 import {BASE_API_URL} from "../../config/url"
 import "../../CSS/chat.css"
 
+import ChatIndexChat from "./ChatIndexChat"
+
 type Props = {}
 
 const ChatIndex: React.FC<Props> = () => {
@@ -33,68 +35,21 @@ const ChatIndex: React.FC<Props> = () => {
 		dispatch(getChatroom())
 	}, [useeffect_counter])
 
-	const getSingleUser = async (chatroom: chatroomType) => {
-		try {
-			let response = await axios({
-				url: BASE_API_URL + "/chatrooms/" + chatroom.id + "/single_user",
-				method: "GET",
-				withCredentials: true
-			})
-			let user_data = response["data"]["user"]
-			return user_data
-		} catch(error) {
-			console.log(error)
-			return []
-		}
-	}
-
-	const getLastMessage = async (chatroom: chatroomType) => {
-		try {
-			let response = await axios({
-				url: BASE_API_URL + "/chatrooms/" + chatroom.id + "/last_message",
-				method: "GET",
-				withCredentials: true
-			})
-			let message_status = response["data"]["status"]
-			if (message_status == "success") {
-				let message_data = response["data"]["messages"]
-				return message_data
-			} else {
-				return {}
-			}
-		} catch(error) {
-			console.log(error)
-			return []
-		}
-	}
-
-	const getSingleUserImage = async (chatroom: chatroomType, index: number) => {
-		let user  = await getSingleUser(chatroom)
-		let chat_image = document.getElementsByClassName("chat-index-chat-img")[index] as HTMLImageElement
-		chat_image.setAttribute("src", user.image)
-		let chat_text  = document.getElementsByClassName("chat-index-chat-name")[index] as HTMLSpanElement
-		chat_text.innerText = user.name
-	}
-
-	const getLastMessageData = async (chatroom: chatroomType, index: number) => {
-		let message = await getLastMessage(chatroom)
-		let message_html = document.getElementsByClassName("chat-index-chat-last-message")[index] as HTMLSpanElement
-		if ( message.content == undefined) {
-			message_html.innerText = "チャットを始めよう！"
-		} else {
-			if (message.content == "") {
-				message_html.innerText = "[画像]"
-			} else {
-				message_html.innerText = message.content
-			}
-		}
-	}
-
 	return(
 		<div className="chat-index-area">
 			<div className="row">
 				<div className="col-2">
 					<div className="chat-index-sidebar">
+						<Link to="/">
+							<img src="http://localhost:8000/media/images/logo/chat.png"
+								 className="chat-index-header-img"
+							/>
+						</Link>
+						<Link to="/current_user">
+							<img src="http://localhost:8000/media/images/logo/user.jpeg"
+								 className="chat-index-header-img"
+							/>
+						</Link>
 					</div>
 				</div>
 				<div className="col-10">
@@ -103,41 +58,9 @@ const ChatIndex: React.FC<Props> = () => {
 						<hr />
 						<div>
 							{chats.map((chat, index) => {
-								{chat.is_group === false && getSingleUserImage(chat, index)}
-								{getLastMessageData(chat, index)}
-								return chat.is_group === false ?
-									<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
-										<div className="row">
-											<div className="col-3">
-												<img src="" className="chat-index-chat-img" />
-											</div>
-											<div className="col-9">
-												<span className="chat-index-chat-name">
-												</span>
-												<br/>
-												<small className="chat-index-chat-last-message">
-												</small>
-											</div>
-										</div>
-										<hr />
-									</Link>
-								:
-									<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
-										<div className="row">
-											<div className="col-3">
-												<img src={chat.image} className="chat-index-chat-img" />
-											</div>
-											<div className="col-9">
-												<span className="chat-index-chat-name">
-													{chat.name}
-												</span>
-												<br/>
-												<small className="chat-index-chat-last-message">
-												</small>
-											</div>
-										</div>
-										<hr />
-									</Link>
+								return (
+									<ChatIndexChat chat={chat} current_user={current_user} />
+								)
 							})}
 						</div>
 					</div>

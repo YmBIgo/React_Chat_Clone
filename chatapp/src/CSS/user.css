@@ -1,3 +1,4 @@
+/* User Show  */
 .user-show-area{
 	width: 470px;
 	height: 670px;
@@ -26,4 +27,11 @@
 .user-show-footer{
 	margin: 50px auto;
 	text-align: center;
+}
+
+/* Current User */
+.current-user-edit-area{
+	width: 470px;
+	height: 670px;
+	background-color: white;
 }
