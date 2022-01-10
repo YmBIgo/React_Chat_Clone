@@ -48,7 +48,7 @@ const UserShowFooter: React.FC<Props> = ({current_user, startChat}) => {
 		<div>
 			{isChat == true ?
 				<div className="user-show-footer">
-					<Link to={"/chats/"+chatroom.id}>
+					<Link to={"/chats/"+chatroom.id} className="user-show-footer-link">
 						<h2>
 						チャットルームを見る
 						</h2>
@@ -57,9 +57,15 @@ const UserShowFooter: React.FC<Props> = ({current_user, startChat}) => {
 			:
 				<div className="user-show-footer">
 					<h2>
-						<button onClick={startChat}>
-							チャットを始める
-						</button>
+						{ current_user == user.id ?
+							<Link to="/current_user" className="user-show-footer-link">
+								ユーザー編集する
+							</Link>
+							:
+							<button onClick={startChat} className="user-show-footer-link">
+								チャットを始める
+							</button>
+						}
 					</h2>
 				</div>
 			}

@@ -8,6 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.utils import timezone
 from .models import User, ChatRoom, ChatRoomUserRelation, Message, CsrfToken
 
 # Create your views here.
@@ -613,7 +614,7 @@ def showCurrentUsersChatroom(request):
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 	if request.method == "GET":
-		chatroom_relations = ChatRoomUserRelation.objects.filter(user=current_user[0])
+		chatroom_relations = ChatRoomUserRelation.objects.filter(user=current_user[0]).order_by("-updated_at")
 		chatrooms_array = []
 		for chatroom_relation in chatroom_relations:
 			chatroom = chatroom_relation.chat_room
@@ -906,6 +907,8 @@ def sendMessage(request, id):
 			uploaded_file_url = "http://localhost:8000" + fs.url(file_name)
 			image_message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], image=uploaded_file_url)
 			# 
+			is_user_exist_in_chatroom.update(updated_at=timezone.now())
+			# 
 			content = request.POST.get("content")
 			if content != None and content != "":
 				message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
@@ -946,6 +949,9 @@ def sendMessage(request, id):
 							"message": "content should not blank"}
 				result = json.dumps(response, ensure_ascii=False)
 				return HttpResponse(result)
+			# 
+			is_user_exist_in_chatroom.update(updated_at=timezone.now())
+			# 
 			message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
 			message_json = {"id": message.id, "content": message.content, "image": "",
 							"created_at": str(message.created_at), "user_id": str(message.user.id)}

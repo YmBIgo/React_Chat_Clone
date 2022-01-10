@@ -28,6 +28,10 @@
 	margin: 50px auto;
 	text-align: center;
 }
+.user-show-footer-link {
+	text-decoration: none;
+	color: black;
+}
 
 /* Current User */
 .current-user-edit-area{

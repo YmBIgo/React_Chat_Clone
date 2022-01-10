@@ -1,4 +1,4 @@
-import React, {useEffect} from "react"
+import React, {useEffect, useState} from "react"
 import axios from "axios"
 import {Link} from "react-router-dom"
 
@@ -13,22 +13,21 @@ type Props = {
 
 const ChatDetailMessage: React.FC<Props> = ({message, current_user}) => {
 
+	const [userImage, setUserImage] = useState<string>()
+
 	useEffect(() => {
-		getUserData(message.user_id)
+		// setTimeout(getUserData, 500)
+		getUserData()
 	}, [])
 
-	let image_ref = React.createRef<HTMLImageElement>()
-
-	const getUserData = (user_id: number) => {
+	const getUserData = () => {
+		let user_id: number = message.user_id
 		axios({
 			url: BASE_API_URL + "/users/" + user_id.toString(),
 			method: "GET"
 		}).then((response) => {
-			let user: userType = response["data"]
-			let image_html = image_ref.current as HTMLImageElement
-			if (user.image != undefined) {
-				image_html.setAttribute("src", user.image)
-			}
+			let user: userType = response.data
+			setUserImage(user.image)
 		})
 	}
 
@@ -46,7 +45,7 @@ const ChatDetailMessage: React.FC<Props> = ({message, current_user}) => {
 			</div>
 			<div className="col-1">
 				<Link to={"/users/"+message.user_id.toString()}>
-					<img className="chat-detail-user-img myself-img" ref={image_ref} />
+					<img className="chat-detail-user-img myself-img" src={userImage} />
 				</Link>
 			</div>
 		</div>
@@ -54,7 +53,7 @@ const ChatDetailMessage: React.FC<Props> = ({message, current_user}) => {
 		<div className="row">
 			<div className="col-1">
 				<Link to={"/users/"+message.user_id.toString()}>
-					<img className="chat-detail-user-img" ref={image_ref} />
+					<img className="chat-detail-user-img" src={userImage} />
 				</Link>
 			</div>
 			<div className="col-11">

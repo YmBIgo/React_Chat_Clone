@@ -7,8 +7,11 @@ import ChatDetailMessage from "./ChatDetailMessage"
 import {getCurrentUser} from "../../state/actions"
 import {getMessages, addMessage, concatMessage, messageType} from "../../state/actions/message"
 import {messageReducerType} from "../../state/reducers/messages"
+import {chatroomType} from "../../state/actions/chatroom"
+import {userType} from "../../state/actions/user"
 import {rootState} from "../../state/reducers"
 import {BASE_API_URL} from "../../config/url"
+import "../../CSS/chat.css"
 
 type Props = {}
 
@@ -19,6 +22,10 @@ const ChatDetail: React.FC<Props> = () => {
 	const messages_: messageReducerType = useSelector((state: rootState) => state.messages)
 	const messages: messageType[] = messages_.messages
 	const messages_status: string = messages_.status
+	const [chatroom, setChatroom] = useState<chatroomType>({})
+	const [singleUser, setSingleUser] = useState<userType>({});
+	const [userLength, setUserLength] = useState<number>(0);
+
 	const params = useParams<"chatId">();
 	const navigate = useNavigate()
 
@@ -44,37 +51,41 @@ const ChatDetail: React.FC<Props> = () => {
 	}, [messages_status])
 
 	useEffect(() => {
-		getChatData(Number(params.chatId))
+		// getChatData(Number(params.chatId))
 		setTimeout(getMessageHeight, 100)
 	}, [params])
 
-	const getChatData = (chat_id: number) => {
+	useEffect(() => {
+		getChatroom(Number(params.chatId))
+		getChatUserLength(Number(params.chatId))
+	}, [])
+
+	const getChatroom = (chat_id: number) => {
 		axios({
 			url: BASE_API_URL + "/chatrooms/" + chat_id.toString(),
 			method: "GET",
 			withCredentials: true
 		}).then((response) => {
-			if (response.data.is_group == true) {
-				let chat_name = response.data.name
-				let chat_image = response.data.image
-				let chat_name_html = document.getElementsByClassName("chat-detail-header-name")[0] as HTMLSpanElement
-				let chat_image_html = document.getElementsByClassName("chat-detail-header-img")[0] as HTMLImageElement
-				chat_name_html.innerText = chat_name
-				chat_image_html.setAttribute("src", chat_image)
-			} else if (response.data.is_group == false) {
+			setChatroom(response.data)
+			if (response.data.is_group == false) {
 				axios({
 					url: BASE_API_URL + "/chatrooms/" + chat_id.toString() + "/single_user",
 					method: "GET",
 					withCredentials: true
 				}).then((response2) => {
-					let chat_name = response2.data.user.name
-					let chat_image = response2.data.user.image
-					let chat_name_html = document.getElementsByClassName("chat-detail-header-name")[0] as HTMLSpanElement
-					let chat_image_html = document.getElementsByClassName("chat-detail-header-img")[0] as HTMLImageElement
-					chat_name_html.innerText = chat_name
-					chat_image_html.setAttribute("src", chat_image)
+					setSingleUser(response2.data.user)
 				})
 			}
+		})
+	}
+
+	const getChatUserLength = (chat_id: number) => {
+		axios({
+			url: BASE_API_URL + "/chatrooms/" + chat_id.toString() + "/users",
+			method: "GET",
+			withCredentials: true
+		}).then((response) => {
+			setUserLength(response.data.users.length)
 		})
 	}
 
@@ -135,13 +146,29 @@ const ChatDetail: React.FC<Props> = () => {
 			<Link to="/">＜　トップに戻る</Link>
 			<div className="chat-detail-header">
 				<div className="row">
-					<div className="col-2">
-						<img className="chat-detail-header-img" />
-					</div>
-					<div className="col-10">
-						<span className="chat-detail-header-name">
-						</span>
-					</div>
+					{ chatroom.is_group == true ?
+						<>
+							<div className="col-2">
+								<img className="chat-detail-header-img" src={chatroom.image} />
+							</div>
+							<div className="col-10">
+								<Link to={"/group_chats/"+chatroom.id} className="chat-detail-header-name">
+									{chatroom.name} ({userLength})
+								</Link>
+							</div>
+						</>
+						:
+						<>
+							<div className="col-2">
+								<img className="chat-detail-header-img" src={singleUser.image} />
+							</div>
+							<div className="col-10">
+								<Link to={"/users/"+singleUser.id} className="chat-detail-header-name">
+									{singleUser.name}
+								</Link>
+							</div>
+						</>
+					}
 				</div>
 			</div>
 			<div className="chat-detail-messages-area">
@@ -152,7 +179,6 @@ const ChatDetail: React.FC<Props> = () => {
 					表示できるメッセージはありません。
 				</div>
 				{messages.map((message, index) => {
-					{ /*getUserData(message.user_id, index)*/ }
 					return(
 						<ChatDetailMessage message={message} current_user={current_user} />
 					)

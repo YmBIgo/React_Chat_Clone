@@ -50,6 +50,11 @@ const ChatIndex: React.FC<Props> = () => {
 								 className="chat-index-header-img"
 							/>
 						</Link>
+						<Link to="/start_group_chat">
+							<img src="http://localhost:8000/media/images/logo/group_chat.png"
+								 className="chat-index-header-img"
+							/>
+						</Link>
 					</div>
 				</div>
 				<div className="col-10">

@@ -55,7 +55,6 @@ const CurrentUserEdit = () => {
 
 	const updateUserImage = () => {
 		let images = file_input.current.files
-		console.log(images)
 		if (images !== null) {
 			if (images.length > 0) {
 				file_error.current.style.display = "none"
