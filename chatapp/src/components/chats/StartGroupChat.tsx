@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from "react"
-import {Link} from "react-router-dom"
+import axios from "axios"
+import {Link, useNavigate} from "react-router-dom"
 import {useSelector, useDispatch} from "react-redux"
 
 import {rootState} from "../../state/reducers"
 import {initStartGroupChatUser, addStartGroupChatUser} from "../../state/actions/startGroupChatUser"
+import {BASE_API_URL} from "../../config/url"
 
 import "../../CSS/chat.css"
 
@@ -12,6 +14,7 @@ const StartGroupChat = () => {
 	const dispatch = useDispatch()
 	const startGroupChatUser = useSelector((state: rootState) => state.startGroupChatUser)
 	const id_input: any = React.createRef<HTMLInputElement>()
+	const navigate = useNavigate()
 
 	const [userLength, setUserLength] = useState<number[]>([])
 
@@ -22,7 +25,10 @@ const StartGroupChat = () => {
 	const addGroupChatUser = () => {
 		let id_input_html = id_input.current
 		let id_input_value: number = parseInt(id_input_html.value)
-		dispatch(addStartGroupChatUser(id_input_value))
+		id_input_html.value = ""
+		if (id_input_value != NaN) {
+			dispatch(addStartGroupChatUser(id_input_value))
+		}
 	}
 
 	const onChangeCheckBox = () => {
@@ -37,6 +43,32 @@ const StartGroupChat = () => {
 		setUserLength(user_checked_array)
 	}
 
+	const onClickCreateGroupChat = () => {
+		if (userLength.length == 0) {
+			return
+		} else {
+			axios({
+				url: BASE_API_URL + "/generate_csrf",
+				method: "GET"
+			}).then((response) => {
+				let user_ids_params = JSON.stringify(userLength)
+				let csrf_token: string = response["data"]["csrf_token"]
+				let params = new URLSearchParams()
+				params.append("csrf_token", csrf_token)
+				params.append("user_ids", user_ids_params)
+				axios({
+					url: BASE_API_URL + "/group_chatrooms/new",
+					method: "POST",
+					data: params,
+					withCredentials: true
+				}).then((response2) => {
+					let chat_id = response2.data.chatroom.id
+					navigate("/chats/" + chat_id.toString())
+				})
+			})
+		}
+	}
+
 	return(
 		<div className="start-group-chat-area">
 			<div className="row">
@@ -45,7 +77,10 @@ const StartGroupChat = () => {
 				</div>
 				<div className="col-4">
 				</div>
-				<div className="col-4" style={{textAlign:"right"}}>
+				<div className="col-4"
+					 style={{textAlign:"right"}}
+					 onClick={() => onClickCreateGroupChat()}
+				>
 					作成する　＞
 				</div>
 			</div>
