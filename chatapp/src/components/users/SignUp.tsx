@@ -44,7 +44,7 @@ const SignUp: React.FC<Props> = () => {
 					className="form-control email-input"
 			/>
 			<label>Password</label>
-			<input  type="text"
+			<input  type="password"
 					className="form-control password-input"
 			/>
 			<button className="btn btn-success"
