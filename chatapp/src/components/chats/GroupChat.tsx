@@ -23,6 +23,7 @@ const GroupChat = () => {
 	const [chatroom, setChatroom] = useState<chatroomType>({})
 	const [chatroomUsers, setChatRommUsers] = useState<userType[]>([])
 	const [fixedChatroomUsers, setFixedChatroomUsers] = useState<userType[]>([])
+	const [userIds, setUserIds] = useState<number[]>([])
 
 	useEffect(() => {
 		getChatData(Number(params.chatId))
@@ -57,9 +58,10 @@ const GroupChat = () => {
 				setChatRommUsers(response2.data.users)
 				setFixedChatroomUsers(response2.data.users)
 				let user_ids: number[] = response2.data.users.map((user: userType) => user.id)
-				if (user_ids.includes(current_user) == false) {
-					navigate("/")
-				}
+				setUserIds(user_ids)
+				// if (user_ids.includes(current_user) == false) {
+				// 	navigate("/")
+				// }
 			})
 		})
 	}
@@ -76,6 +78,25 @@ const GroupChat = () => {
 	const getInputData = () => {
 		let input_value = input_html.current.value
 		setInputValue(input_value)
+	}
+
+	const participateGroupChat = () => {
+		axios({
+			url: BASE_API_URL + "/generate_csrf",
+			method: "GET"
+		}).then((response) => {
+			let csrf_token = response.data.csrf_token
+			let data = new URLSearchParams()
+			data.append("csrf_token", csrf_token)
+			axios({
+				url: BASE_API_URL + "/chatrooms/" + params.chatId + "/add_user",
+				method: "POST",
+				data: data,
+				withCredentials: true
+			}).then((response2) => {
+				navigate("/chats/" + params.chatId)
+			})
+		})
 	}
 
 	return(
@@ -109,6 +130,14 @@ const GroupChat = () => {
 						ref={input_html}
 						onChange={getInputData}
 				/>
+				{ userIds.includes(current_user) == false &&
+					<div className="group-chat-edit-participate-button">
+						<button className="btn btn-primary"
+								onClick={() => participateGroupChat()}>
+							参加する
+						</button>
+					</div>
+				}
 				<hr />
 				{fixedChatroomUsers.map((user) => {
 					return(

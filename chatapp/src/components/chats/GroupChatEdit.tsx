@@ -136,15 +136,24 @@ const GroupChatEdit = () => {
 			<h3 className="">{chatroom.name}</h3>
 			<hr />
 			<h4>画像をアップロード</h4>
-			<label>Image</label>
-			<input 	type="file"
-					name="image"
-					ref={image_input_ref}
-			/>
-			<button className="btn btn-primary group-chat-update-input-btn"
-					onClick={() => updateGroupChatImage()}>
-				送信する
-			</button>
+			<div className="row">
+				<div className="col-6">
+					<label>Image</label>
+					<input 	type="file"
+							name="image"
+							ref={image_input_ref}
+					/>
+					<button className="btn btn-primary group-chat-update-input-btn"
+							onClick={() => updateGroupChatImage()}>
+						送信する
+					</button>
+				</div>
+				<div className="col-6">
+					<img src={chatroom.image}
+						 className="group-chat-update-input-image"
+					/>
+				</div>
+			</div>
 			<hr />
 			<h4>タイトルを編集</h4>
 			<label>Name</label>

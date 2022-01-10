@@ -158,6 +158,9 @@
 	text-decoration: none;
 	color: black;
 }
+.group-chat-edit-participate-button{
+	margin-top: 10px;
+}
 .group-chat-edit-user-box{
 	margin: 10px 3px;
 }
@@ -180,6 +183,12 @@
 }
 .group-chat-update-input-btn{
 	margin: 10px 0;
+}
+.group-chat-update-input-image{
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	border: 0.1px solid rgba(50, 50, 50, .7);
 }
 
 

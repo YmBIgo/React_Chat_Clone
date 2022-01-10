@@ -54,3 +54,9 @@
 	margin-top: 10px;
 	margin-bottom: 5px;
 }
+.current-user-edit-img{
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	border: 0.1px solid rgba(50, 50, 50, .7);
+}

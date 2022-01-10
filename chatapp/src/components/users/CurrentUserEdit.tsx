@@ -118,19 +118,27 @@ const CurrentUserEdit = () => {
 				<div ref={file_error} style={{color:"red", marginLeft: "20px", display: "none"}}>
 					file error
 				</div>
-				<label className="current-user-edit-label">
-					Image
-				</label>
-				<input 	type="file"
-						accept="image/*"
-						ref={file_input}
-				/>
-				<br />
-				<input  type="button"
-						className="btn btn-primary current-user-edit-btn"
-						value="送信する"
-						onClick={() => updateUserImage()}
-				/>
+				<div className="row">
+					<div className="col-6">
+						<label className="current-user-edit-label">
+							Image
+						</label>
+						<br />
+						<input 	type="file"
+								accept="image/*"
+								ref={file_input}
+						/>
+						<br />
+						<input  type="button"
+								className="btn btn-primary current-user-edit-btn"
+								value="送信する"
+								onClick={() => updateUserImage()}
+						/>
+					</div>
+					<div className="col-6">
+						<img src={user.image} className="current-user-edit-img" />
+					</div>
+				</div>
 				<hr />
 				<label className="current-user-edit-label">
 					Name
