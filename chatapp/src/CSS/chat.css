@@ -7,6 +7,10 @@
 .chat-index-chat-inner{
 	padding: 10px;
 }
+.chat-index-chat-timeline{
+	height: 590px;
+	overflow: scroll;
+}
 .chat-index-chat-panel{
 	text-decoration: none;
 	color: black;

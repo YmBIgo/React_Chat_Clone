@@ -5,7 +5,7 @@ import {useParams, useNavigate} from "react-router-dom"
 import {useDispatch, useSelector} from "react-redux"
 
 import {getCurrentUser} from "../../state/actions"
-import {chatroomType} from "../../state/actions/chatroom"
+import {chatroomType, removeGroupChat} from "../../state/actions/chatroom"
 import {userType} from "../../state/actions/user"
 import {rootState} from "../../state/reducers"
 import {BASE_API_URL} from "../../config/url"
@@ -109,22 +109,8 @@ const GroupChatEdit = () => {
 	}
 
 	const quitGroupChat = () => {
-		axios({
-			url: BASE_API_URL + "/generate_csrf",
-			method: "GET"
-		}).then((response) => {
-			let csrf_token = response.data.csrf_token
-			let data = new URLSearchParams()
-			data.append("csrf_token", csrf_token)
-			axios({
-				url: BASE_API_URL + "/chatrooms/" + params.chatId + "/remove_user",
-				method: "POST",
-				data: data,
-				withCredentials: true
-			}).then((response2) => {
-				navigate("/")
-			})
-		})
+		dispatch(removeGroupChat(Number(params.chatId)))
+		navigate("/")
 	}
 
 	return(

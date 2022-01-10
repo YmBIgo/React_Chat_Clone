@@ -783,7 +783,11 @@ def addUserToGroupChat(request, id):
 		chatroom_filtered.update(user_ids=users_array_str)
 		# response
 		response = {"status": "success",
-					"message": "ok"}
+					"message": "ok",
+					"chatroom": {"id": chatroom.id, "name": chatroom.name,
+								 "image": str(chatroom.image), "is_group": chatroom.is_group,
+								 "created_at": str(chatroom.created_at)}
+					}
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 	else:
@@ -848,7 +852,11 @@ def removeUserToGroupChat(request, id):
 		chatroom_filtered.update(user_ids=users_array_str)
 		# response
 		response = {"status": "success",
-					"message": "ok"}
+					"message": "ok",
+					"chatroom": {"id": chatroom.id, "name": chatroom.name,
+								 "image": str(chatroom.image), "is_group": chatroom.is_group,
+								 "created_at": str(chatroom.created_at)}
+					}
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 	else:

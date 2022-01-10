@@ -61,7 +61,7 @@ const ChatIndex: React.FC<Props> = () => {
 					<div className="chat-index-chat-inner">
 						<h2>チャット一覧</h2>
 						<hr />
-						<div>
+						<div className="chat-index-chat-timeline">
 							{chats.map((chat, index) => {
 								return (
 									<ChatIndexChat chat={chat} current_user={current_user} />
