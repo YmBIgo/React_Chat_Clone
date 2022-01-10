@@ -33,6 +33,16 @@
 	margin-top: 5px;
 	font-size: 12px;
 }
+.chat-index-chat-unread-message-length{
+	background-color: #33CC33;
+	color: white;
+	margin-top: 10px;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	border-radius: 50%;
+	padding-top: 3px;
+}
 /* Chat Detail */
 .chat-detail-area{
 	width: 470px;

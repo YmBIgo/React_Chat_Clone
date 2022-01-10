@@ -1,4 +1,4 @@
-import React, {useEffect} from "react"
+import React, {useEffect, useState} from "react"
 import axios from "axios"
 import {Link} from "react-router-dom"
 
@@ -14,6 +14,8 @@ type Props = {
 
 const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 
+	const [unreadLength, setUnreadLength] = useState<number>(0)
+
 	const chatsImageRef = React.createRef<HTMLImageElement>()
 	const chatsNameRef = React.createRef<HTMLSpanElement>()
 	const chatsMessageRef = React.createRef<HTMLDivElement>()
@@ -23,6 +25,10 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 			getSingleUser(chat)
 		}
 		getLastMessage(chat)
+	}, [])
+
+	useEffect(() => {
+		getUnreadMessagesCount()
 	}, [])
 
 	const getSingleUser = (chatroom: chatroomType) => {
@@ -71,6 +77,16 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 		})
 	}
 
+	const getUnreadMessagesCount = () => {
+		axios({
+			url: BASE_API_URL + "/chatrooms/" + chat.id + "/unread_message",
+			method: "GET",
+			withCredentials: true
+		}).then((response) => {
+			setUnreadLength(response.data.unread_messages.length)
+		})
+	}
+
 	return(
 		chat.is_group === false ?
 			<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
@@ -78,12 +94,19 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 					<div className="col-3">
 						<img src="" className="chat-index-chat-img" ref={chatsImageRef} />
 					</div>
-					<div className="col-9">
+					<div className="col-7">
 						<span className="chat-index-chat-name" ref={chatsNameRef}>
 						</span>
 						<br/>
 						<div className="chat-index-chat-last-message" ref={chatsMessageRef} >
 						</div>
+					</div>
+					<div className="col-2">
+						{unreadLength > 0 &&
+							<div className="chat-index-chat-unread-message-length">
+								{unreadLength}
+							</div>
+						}
 					</div>
 				</div>
 				<hr />
@@ -94,13 +117,20 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 					<div className="col-3">
 						<img src={chat.image} className="chat-index-chat-img" ref={chatsImageRef} />
 					</div>
-					<div className="col-9">
+					<div className="col-7">
 						<span className="chat-index-chat-name" ref={chatsNameRef}>
 							{chat.name}
 						</span>
 						<br/>
 						<div className="chat-index-chat-last-message" ref={chatsMessageRef} >
 						</div>
+					</div>
+					<div className="col-2">
+						{unreadLength > 0 &&
+							<div className="chat-index-chat-unread-message-length">
+								{unreadLength}
+							</div>
+						}
 					</div>
 				</div>
 				<hr />

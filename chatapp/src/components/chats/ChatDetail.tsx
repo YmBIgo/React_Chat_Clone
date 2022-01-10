@@ -5,7 +5,7 @@ import axios from "axios"
 
 import ChatDetailMessage from "./ChatDetailMessage"
 import {getCurrentUser} from "../../state/actions"
-import {getMessages, addMessage, concatMessage, messageType} from "../../state/actions/message"
+import {getMessages, addMessage, concatMessage, messageType, checkUnreadMessage} from "../../state/actions/message"
 import {messageReducerType} from "../../state/reducers/messages"
 import {chatroomType} from "../../state/actions/chatroom"
 import {userType} from "../../state/actions/user"
@@ -58,6 +58,13 @@ const ChatDetail: React.FC<Props> = () => {
 	useEffect(() => {
 		getChatroom(Number(params.chatId))
 		getChatUserLength(Number(params.chatId))
+	}, [])
+
+	useEffect(() => {
+		const ptr = setInterval(() => {
+			dispatch(checkUnreadMessage(Number(params.chatId)))
+		}, 1000)
+		return () => clearInterval(ptr)
 	}, [])
 
 	const getChatroom = (chat_id: number) => {

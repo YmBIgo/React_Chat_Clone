@@ -8,6 +8,8 @@ export const CONCAT_MESSAGE_SUCCESS = "CONCAT_MESSAGE_SUCCESS"
 export const CONCAT_MESSAGE_FAIL = "CONCAT_MESSAGE_FAIL"
 export const ADD_MESSAGE_SUCCESS = "ADD_MESSAGE_SUCCESS"
 export const ADD_MESSAGE_FAIL = "ADD_MESSAGE_FAIL"
+export const CHECK_UNREAD_MESSAGE_SUCCESS = "CHECK_UNREAD_MESSAGE_SUCCESS"
+export const CHECK_UNREAD_MESSAGE_FAIL = "CHECK_UNREAD_MESSAGE_FAIL"
 
 export type messageType = {
 	id: number;
@@ -97,14 +99,14 @@ export const addMessage = (content: string, image: any, chatroom_id: number) => 
 	}
 }
 
-export const addMessageSuccess = (messages: messageType[]): messageActionType => {
+const addMessageSuccess = (messages: messageType[]): messageActionType => {
 	return {
 		type: ADD_MESSAGE_SUCCESS,
 		messages: messages
 	}
 }
 
-export const addMessageFail = (): messageActionType => {
+const addMessageFail = (): messageActionType => {
 	return {
 		type: ADD_MESSAGE_FAIL,
 		messages: []
@@ -136,16 +138,52 @@ export const concatMessage = (chatroom_id: number, offset: number) => {
 	}
 }
 
-export const concatMessageSuccess = (messages: messageType[]): messageActionType => {
+const concatMessageSuccess = (messages: messageType[]): messageActionType => {
 	return {
 		type: CONCAT_MESSAGE_SUCCESS,
 		messages: messages
 	}
 }
 
-export const concatMessageFail = (): messageActionType => {
+const concatMessageFail = (): messageActionType => {
 	return {
 		type: CONCAT_MESSAGE_FAIL,
+		messages: []
+	}
+}
+
+export const checkUnreadMessage = (chatroom_id: number) => {
+	return (dispatch: Dispatch) => {
+		axios({
+			url: BASE_API_URL + "/chatrooms/" + chatroom_id.toString() + "/unread_message",
+			method: "GET",
+			withCredentials: true
+		}).then((response) => {
+			let response_status = response.data.status
+			if (response_status == "success") {
+				let messages = response.data.unread_messages
+				dispatch(checkUnreadMessageSuccess(messages))
+			} else if (response_status == "fail") {
+				dispatch(checkUnreadMessageFail())
+			} else if (response_status == "error") {
+				dispatch(checkUnreadMessageFail())
+			} else {
+				dispatch(checkUnreadMessageFail())
+			}
+		})
+	}
+}
+
+const checkUnreadMessageSuccess = (messages: messageType[]): messageActionType => {
+	return {
+		type: CHECK_UNREAD_MESSAGE_SUCCESS,
+		messages: messages
+	}
+}
+
+const checkUnreadMessageFail = (): messageActionType => {
+	return {
+		type: CHECK_UNREAD_MESSAGE_FAIL,
 		messages: []
 	}
 }

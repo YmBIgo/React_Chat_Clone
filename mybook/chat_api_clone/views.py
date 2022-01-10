@@ -1108,7 +1108,7 @@ def getUnreadMessage(request, id):
 								   "content": unread_message.content, "image": str(unread_message.image),
 								   "created_at": str(unread_message.created_at)}
 			unread_messages_json.append(unread_message_json)
-		# unread_messages.delete()
+		unread_messages.delete()
 		response = {"status": "success",
 					"message": "ok",
 					"unread_messages": unread_messages_json}
