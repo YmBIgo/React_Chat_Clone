@@ -57,8 +57,16 @@ class Message(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+class UnreadMessage(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='message_user')
+	chat_room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
+	to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='to_user')
+	content = models.TextField(default="")
+	image = models.ImageField(upload_to=upload_message_path)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
 class CsrfToken(models.Model):
 	content = models.CharField(max_length=256)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
-

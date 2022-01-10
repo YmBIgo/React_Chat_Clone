@@ -9,6 +9,7 @@ export const chatrooms = (state: chatroomType[] = [], action: chatroomAction) =>
 		case GET_CHATROOM_FAIL:
 			return []
 		case ADD_CHATROOM_SUCCESS:
+			console.log(state, action.chatrooms)
 			return [...state, ...action.chatrooms]
 		case ADD_CHATROOM_FAIL:
 			return state

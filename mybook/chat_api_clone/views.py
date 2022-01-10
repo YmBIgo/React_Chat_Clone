@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.utils import timezone
-from .models import User, ChatRoom, ChatRoomUserRelation, Message, CsrfToken
+from .models import User, ChatRoom, ChatRoomUserRelation, Message, UnreadMessage, CsrfToken
 
 # Create your views here.
 
@@ -400,7 +400,7 @@ def createChatroom(request):
 			response = {"status": "success",
 						"message": "ok",
 						"chatroom": {"id": chatroom.id, "name": chatroom.name,
-									 "image": chatoom.image, "is_group": chatroom.is_group}}
+									 "image": str(chatroom.image), "is_group": chatroom.is_group}}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
 		except:
@@ -906,12 +906,14 @@ def sendMessage(request, id):
 			file_name = fs.save(file_path, image)
 			uploaded_file_url = "http://localhost:8000" + fs.url(file_name)
 			image_message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], image=uploaded_file_url)
+			createUnReadMessage(chatroom, current_user, "", uploaded_file_url)
 			# 
 			is_user_exist_in_chatroom.update(updated_at=timezone.now())
 			# 
 			content = request.POST.get("content")
 			if content != None and content != "":
 				message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
+				createUnReadMessage(chatroom, current_user, content, "")
 			message_json = {"id": image_message.id, "image": str(image_message.image), "content": "",
 							"created_at": str(image_message.created_at), "user_id": str(image_message.user.id)}
 			response = {"status": "success",
@@ -953,6 +955,7 @@ def sendMessage(request, id):
 			is_user_exist_in_chatroom.update(updated_at=timezone.now())
 			# 
 			message = Message.objects.create(user=current_user[0], chat_room=chatroom[0], content=content)
+			createUnReadMessage(chatroom, current_user, content, "")
 			message_json = {"id": message.id, "content": message.content, "image": "",
 							"created_at": str(message.created_at), "user_id": str(message.user.id)}
 			response = {"status": "success",
@@ -1058,6 +1061,56 @@ def lastMessage(request, id):
 		result = json.dumps(response, ensure_ascii=False)
 		return HttpResponse(result)
 
+def getUnreadMessage(request, id):
+	# [Input]	chat_id
+	# [Output]	1 : success
+	# 				> generate TextMessage
+	# 			2 : fail (user_id should participate)
+	# 			3 : fail (chatroom_id 404)
+	# 			4 : fail (User not signed in)
+
+	# Check 4
+	current_user = checkUserSignedIn(request)
+	if (current_user == False):
+		response = {"status": "fail",
+					"message": "user authorization fail"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
+	if request.method == "GET":
+		# Check 3
+		chatroom = ChatRoom.objects.filter(pk=id)
+		if len(chatroom) == 0:
+			response = {"status": "fail",
+						"message": "chatroom not exist"}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		# Check 2
+		is_user_exist_in_chatroom = ChatRoomUserRelation.objects.filter(user=current_user[0],chat_room=chatroom[0])
+		if len(is_user_exist_in_chatroom) == 0:
+			response = {"status": "fail",
+						"message": "user is not exist in this chat"}
+			result = json.dumps(response, ensure_ascii=False)
+			return HttpResponse(result)
+		# 1
+		unread_messages = UnreadMessage.objects.filter(to_user=current_user[0],chat_room=chatroom[0])
+		# 
+		unread_messages_json = []
+		for unread_message in unread_messages:
+			unread_message_json = {"id": unread_message.id, "user_id": unread_message.user.id,
+								   "content": unread_message.content, "image": str(unread_message.image),
+								   "created_at": str(unread_message.created_at)}
+			unread_messages_json.append(unread_message_json)
+		# unread_messages.delete()
+		response = {"status": "success",
+					"message": "ok",
+					"unread_messages": unread_messages_json}
+		result = json.dumps(response)
+		return HttpResponse(result)
+	else:
+		response = {"status": "fail",
+					"message": "not providing GET request"}
+		result = json.dumps(response, ensure_ascii=False)
+		return HttpResponse(result)
 # 6 : 共有
 
 def checkCsrfToken(csrf_token):
@@ -1077,6 +1130,16 @@ def checkUserSignedIn(request):
 		return False
 	else:
 		return cookie_user
+
+def createUnReadMessage(chatroom, current_user, message_content, message_image):
+	# chatroom は ある前提, current_user は filter したオブジェクト
+	user_relations = ChatRoomUserRelation.objects.filter(chat_room=chatroom[0])
+	user_array = []
+	for user_relation in user_relations:
+		if (user_relation.user.id != current_user[0].id):
+			user_array.append(user_relation.user)
+	for user_ele in user_array:
+		UnreadMessage.objects.create(user=current_user[0],to_user=user_ele,chat_room=chatroom[0],content=message_content,image=message_image)
 
 def set_cookie(response, key, value, max_age):
 	expires = datetime.datetime.strftime(datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")

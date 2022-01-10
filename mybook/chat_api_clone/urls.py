@@ -27,4 +27,5 @@ urlpatterns = [
 	# Message 関係
 	path('chatrooms/<int:id>/messages', views.sendMessage, name="send_message"),
 	path('chatrooms/<int:id>/last_message', views.lastMessage, name="show_last_message"),
+	path('chatrooms/<int:id>/unread_message', views.getUnreadMessage, name="show_unread_message"),
 ]

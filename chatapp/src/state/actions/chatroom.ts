@@ -70,6 +70,7 @@ export const addChatroom = (user_id: number) => {
 				withCredentials: true
 			}).then((response2) => {
 				const response_status = response2.data.status
+				console.log(response2)
 				if (response_status == "success") {
 					dispatch(addChatroomSuccess(response2.data.chatroom))
 				} else if (response_status == "fail") {
