@@ -993,6 +993,9 @@ def sendMessage(request, id):
 						"message": "user is not exist in this chat"}
 			result = json.dumps(response, ensure_ascii=False)
 			return HttpResponse(result)
+		# Delete unread messages
+		unread_messages = UnreadMessage.objects.filter(to_user=current_user[0],chat_room=chatroom[0])
+		unread_messages.delete()
 		# 1
 		offset = 0
 		try: 
