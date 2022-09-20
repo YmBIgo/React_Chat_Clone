@@ -39,8 +39,7 @@ def userCreate(request):
 		user_name = request.POST.get("user_name")
 		email = request.POST.get("email")
 		password = request.POST.get("password")
-		# チェック
-		# 	1 : user_name, email, password の内容が、n文字以上ある
+		# チェック 1 : user_name, email, password の内容が、n文字以上ある
 		if (len(user_name)<0 or len(email)<6 or len(password)<7 ):
 			response = {"status": "fail",
 						"message": "content too short"}
