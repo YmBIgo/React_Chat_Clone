@@ -16,9 +16,13 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 
 	const [unreadLength, setUnreadLength] = useState<number>(0)
 
-	const chatsImageRef = React.createRef<HTMLImageElement>()
-	const chatsNameRef = React.createRef<HTMLSpanElement>()
+	// const chatsImageRef = React.createRef<HTMLImageElement>()
+	// const chatsNameRef = React.createRef<HTMLSpanElement>()
 	const chatsMessageRef = React.createRef<HTMLDivElement>()
+
+	const [chatImage, setChatImage] = useState("")
+	const [chatName, setChatName] = useState("")
+	const [chatMessage, setChatMessage] = useState("")
 
 	useEffect(() => {
 		if (chat.is_group == false) {
@@ -38,10 +42,12 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 			withCredentials: true
 		}).then((response) => {
 			let user_data = response["data"]["user"]
-			let image_html = chatsImageRef.current as HTMLImageElement
-			let name_html = chatsNameRef.current as HTMLSpanElement
-			image_html.setAttribute("src", user_data.image)
-			name_html.innerText = user_data.name
+			// let image_html = chatsImageRef.current as HTMLImageElement
+			// image_html.setAttribute("src", user_data.image)
+			setChatImage(user_data.image)
+			// let name_html = chatsNameRef.current as HTMLSpanElement
+			// name_html.innerText = user_data.name
+			setChatName(user_data.name)
 		})
 	}
 
@@ -54,24 +60,29 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 			let message_status = response["data"]["status"]
 			if (message_status == "success") {
 				let message_data: messageType = response["data"]["messages"]
-				let message_html = chatsMessageRef.current as HTMLDivElement
+				// let message_html = chatsMessageRef.current as HTMLDivElement
 				if (message_data["content"] == undefined) {
-					message_html.innerText = "チャットを始めよう！"
+					// message_html.innerText = "チャットを始めよう！"
+					setChatMessage("チャットを始めよう！")
 				} else {
 					if (message_data["content"] == "") {
-						message_html.innerText = "[画像]"
+						// message_html.innerText = "[画像]"
+						setChatMessage("[画像]")
 					} else {
-						message_html.innerText = message_data["content"]
+						// message_html.innerText = message_data["content"]
+						setChatMessage(message_data["content"])
 					}
 				}
 			} else {
-				let message_html = chatsMessageRef.current as HTMLDivElement
+				// let message_html = chatsMessageRef.current as HTMLDivElement
 				let message_message = response["data"]["message"]
 				if (message_message == "message not exist") {
-					message_html.innerText = "チャットを始めよう！"
+					// message_html.innerText = "チャットを始めよう！"
+					setChatMessage("チャットを始めよう！")
 				} else {
-					let message_html = chatsMessageRef.current as HTMLDivElement
-					message_html.innerText = "Error"
+					// let message_html = chatsMessageRef.current as HTMLDivElement
+					// message_html.innerText = "Error"
+					setChatMessage("Error")
 				}
 			}
 		})
@@ -92,13 +103,15 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 			<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
 				<div className="row">
 					<div className="col-3">
-						<img src="" className="chat-index-chat-img" ref={chatsImageRef} />
+						<img src={chatImage} className="chat-index-chat-img" />
 					</div>
 					<div className="col-7">
-						<span className="chat-index-chat-name" ref={chatsNameRef}>
+						<span className="chat-index-chat-name">
+							{chatName}
 						</span>
 						<br/>
-						<div className="chat-index-chat-last-message" ref={chatsMessageRef} >
+						<div className="chat-index-chat-last-message" >
+							{chatMessage}
 						</div>
 					</div>
 					<div className="col-2">
@@ -115,14 +128,15 @@ const ChatIndexChat: React.FC<Props> = ({chat, current_user}) => {
 			<Link to={"/chats/"+chat.id} className="chat-index-chat-panel">
 				<div className="row">
 					<div className="col-3">
-						<img src={chat.image} className="chat-index-chat-img" ref={chatsImageRef} />
+						<img src={chat.image} className="chat-index-chat-img" />
 					</div>
 					<div className="col-7">
-						<span className="chat-index-chat-name" ref={chatsNameRef}>
+						<span className="chat-index-chat-name">
 							{chat.name}
 						</span>
 						<br/>
-						<div className="chat-index-chat-last-message" ref={chatsMessageRef} >
+						<div className="chat-index-chat-last-message" >
+							{chatMessage}
 						</div>
 					</div>
 					<div className="col-2">

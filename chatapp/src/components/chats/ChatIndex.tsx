@@ -22,7 +22,6 @@ const ChatIndex: React.FC<Props> = () => {
 	const navigation = useNavigate()
 
 	const [fixedChats, setFixedChats] = useState<chatroomType[]>([])
-	const useeffect_counter = 0
 
 	useEffect(() => {
 		dispatch(getCurrentUser())
@@ -33,7 +32,7 @@ const ChatIndex: React.FC<Props> = () => {
 
 	useEffect(() => {
 		dispatch(getChatroom())
-	}, [useeffect_counter])
+	}, [])
 
 	return(
 		<div className="chat-index-area">
